@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model InterviewSession {
+  id                   String   @id @default(uuid())
+  sessionId            String   @unique
+  userId               String
+  role                 String
+  level                String   @default("beginner")
+  status               String   @default("active") // active, completed
+  currentQuestionIndex Int      @default(0)
+  startTime            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  messages    Message[]
+  evaluations InterviewEvaluation[]
+  memory      InterviewMemory?
+}
+
+model QuestionTemplate {
+  id          String              @id @default(uuid())
+  name        String
+  description String?
+  role        String
+  level       String
+  questions   InterviewQuestion[]
+}
+
+model InterviewQuestion {
+  id         String            @id @default(uuid())
+  role       String
+  level      String
+  topic      String
+  question   String
+  difficulty Int
+  orderIndex Int
+  templateId String?
+  template   QuestionTemplate? @relation(fields: [templateId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  sessionId  String
+  session    InterviewSession @relation(fields: [sessionId], references: [sessionId])
+  questionId String?
+  role       String   // user or assistant
+  content    String
+  metrics    Json?
+  createdAt  DateTime @default(now())
+}
+
+model InterviewEvaluation {
+  id                 String   @id @default(uuid())
+  sessionId          String
+  session            InterviewSession @relation(fields: [sessionId], references: [sessionId])
+  questionId         String
+  technicalScore     Int
+  communicationScore Int
+  confidenceScore    Int
+  feedback           String
+  createdAt          DateTime @default(now())
+}
+
+model InterviewMemory {
+  id         String   @id @default(uuid())
+  sessionId  String   @unique
+  session    InterviewSession @relation(fields: [sessionId], references: [sessionId])
+  summary    String?
+  strengths  Json     @default("[]")
+  weaknesses Json     @default("[]")
+  updatedAt  DateTime @updatedAt
+}
