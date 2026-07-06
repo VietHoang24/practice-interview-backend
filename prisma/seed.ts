@@ -2,106 +2,50 @@ import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { MOCK_TEMPLATES } from '../src/interview/templates';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-const juniorFrontendQuestions = [
-  {
-    role: 'frontend',
-    level: 'junior',
-    topic: 'react',
-    question: 'What is React re-render?',
-    difficulty: 2,
-    orderIndex: 1,
-  },
-  {
-    role: 'frontend',
-    level: 'junior',
-    topic: 'react',
-    question: 'What are React hooks? Can you explain useState and useEffect?',
-    difficulty: 2,
-    orderIndex: 2,
-  },
-  {
-    role: 'frontend',
-    level: 'junior',
-    topic: 'javascript',
-    question: 'Can you explain the difference between let, const, and var?',
-    difficulty: 1,
-    orderIndex: 3,
-  },
-  {
-    role: 'frontend',
-    level: 'junior',
-    topic: 'javascript',
-    question: 'What is a Promise in JavaScript? How does it differ from a callback?',
-    difficulty: 3,
-    orderIndex: 4,
-  },
-  {
-    role: 'frontend',
-    level: 'junior',
-    topic: 'css',
-    question: 'What is the CSS Box Model?',
-    difficulty: 1,
-    orderIndex: 5,
-  },
-  {
-    role: 'frontend',
-    level: 'junior',
-    topic: 'css',
-    question: 'How do you center an element using Flexbox?',
-    difficulty: 2,
-    orderIndex: 6,
-  },
-  {
-    role: 'frontend',
-    level: 'junior',
-    topic: 'javascript',
-    question: 'Can you explain event delegation in JavaScript?',
-    difficulty: 3,
-    orderIndex: 7,
-  },
-  {
-    role: 'frontend',
-    level: 'junior',
-    topic: 'html',
-    question: 'What are semantic HTML tags and why are they important?',
-    difficulty: 2,
-    orderIndex: 8,
-  },
-  {
-    role: 'frontend',
-    level: 'junior',
-    topic: 'react',
-    question: 'What is the Virtual DOM and how does React use it?',
-    difficulty: 3,
-    orderIndex: 9,
-  },
-  {
-    role: 'frontend',
-    level: 'junior',
-    topic: 'web',
-    question: 'What is CORS? Have you ever encountered a CORS error and how did you fix it?',
-    difficulty: 3,
-    orderIndex: 10,
-  },
-];
-
 async function main() {
-  console.log('Seeding InterviewQuestions...');
-
+  console.log('Clearing database tables...');
   await prisma.interviewQuestion.deleteMany({});
+  await prisma.questionTemplate.deleteMany({});
 
-  for (const q of juniorFrontendQuestions) {
-    await prisma.interviewQuestion.create({
-      data: q,
-    });
+  console.log('Seeding templates and questions from MOCK_TEMPLATES...');
+
+  for (const [role, levels] of Object.entries(MOCK_TEMPLATES)) {
+    for (const [level, templatesList] of Object.entries(levels)) {
+      console.log(`Seeding ${role} - ${level}...`);
+      for (const tDef of templatesList) {
+        const createdTemplate = await prisma.questionTemplate.create({
+          data: {
+            name: tDef.name,
+            description: tDef.description,
+            role: role.toLowerCase(),
+            level: level.toLowerCase(),
+          }
+        });
+
+        for (const q of tDef.questions) {
+          await prisma.interviewQuestion.create({
+            data: {
+              role: role.toLowerCase(),
+              level: level.toLowerCase(),
+              topic: q.topic,
+              question: q.question,
+              difficulty: q.difficulty,
+              orderIndex: q.orderIndex,
+              templateId: createdTemplate.id,
+            },
+          });
+        }
+      }
+    }
   }
 
-  console.log('Seed completed.');
+  console.log('Seed completed successfully.');
 }
 
 main()

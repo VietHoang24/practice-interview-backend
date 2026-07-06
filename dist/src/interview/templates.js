@@ -249,6 +249,65 @@ exports.MOCK_TEMPLATES = {
                 ]
             }
         ]
+    },
+    hr: {
+        junior: [
+            {
+                name: 'HR Sourcing & Screening Fundamentals',
+                description: 'Focuses on sourcing channels, candidate search, and initial phone screenings.',
+                questions: [
+                    { topic: 'sourcing', question: 'What are your primary strategies for sourcing candidates, and how do you leverage platforms like LinkedIn, GitHub, or developer communities to find talent?', difficulty: 2, orderIndex: 1 },
+                    { topic: 'screening', question: 'How do you conduct an initial phone screening to evaluate if a candidate is a good cultural and basic technical fit?', difficulty: 2, orderIndex: 2 },
+                    { topic: 'coordination', question: 'Explain how you manage interview scheduling and candidate communication to ensure a positive candidate experience.', difficulty: 1, orderIndex: 3 }
+                ]
+            },
+            {
+                name: 'Resume Review & ATS Tools',
+                description: 'Focuses on resume analysis and candidate management systems.',
+                questions: [
+                    { topic: 'resume-review', question: 'What key indicators do you look for when reviewing a CV/resume for a technical role?', difficulty: 2, orderIndex: 1 },
+                    { topic: 'applicant-tracking', question: 'Have you used any Applicant Tracking Systems (ATS) like Greenhouse, Lever, or Workable? How do you keep candidate data organized?', difficulty: 1, orderIndex: 2 }
+                ]
+            }
+        ],
+        mid: [
+            {
+                name: 'Talent Acquisition & Negotiation',
+                description: 'Focuses on pipeline building, negotiation, and analytics.',
+                questions: [
+                    { topic: 'negotiation', question: 'How do you handle salary negotiations with candidates who have competing offers?', difficulty: 3, orderIndex: 1 },
+                    { topic: 'sourcing-strategy', question: 'How do you build a talent pipeline for hard-to-fill technical roles, such as AI/ML or DevOps engineers?', difficulty: 4, orderIndex: 2 },
+                    { topic: 'analytics', question: 'What HR metrics (e.g., Time-to-Hire, Cost-per-Hire, Offer Acceptance Rate) do you track, and how do you use them to improve processes?', difficulty: 3, orderIndex: 3 }
+                ]
+            },
+            {
+                name: 'Employee Relations & Onboarding',
+                description: 'Focuses on onboarding design and resolving conflicts.',
+                questions: [
+                    { topic: 'employee-relations', question: 'How would you handle a conflict between a manager and a team member?', difficulty: 3, orderIndex: 1 },
+                    { topic: 'onboarding', question: 'Describe how you would design or improve a 30-60-90 day onboarding program for new hires.', difficulty: 3, orderIndex: 2 }
+                ]
+            }
+        ],
+        senior: [
+            {
+                name: 'Strategic HR & Employer Branding',
+                description: 'Focuses on corporate alignment, brand building, and workforce planning.',
+                questions: [
+                    { topic: 'strategy', question: 'How do you align the talent acquisition strategy with the long-term business goals of the company?', difficulty: 5, orderIndex: 1 },
+                    { topic: 'employer-branding', question: 'How would you design and implement an employer branding strategy to attract top talent in a highly competitive market?', difficulty: 5, orderIndex: 2 },
+                    { topic: 'workforce-planning', question: 'Explain your approach to workforce planning and budgeting for a rapidly growing organization.', difficulty: 4, orderIndex: 3 }
+                ]
+            },
+            {
+                name: 'Leadership & Organizational Design',
+                description: 'Focuses on change management and talent retention.',
+                questions: [
+                    { topic: 'org-design', question: 'How do you approach organizational design, restructuring, or change management within a company?', difficulty: 5, orderIndex: 1 },
+                    { topic: 'retention', question: 'What strategies would you implement to reduce turnover and improve employee engagement across different departments?', difficulty: 4, orderIndex: 2 }
+                ]
+            }
+        ]
     }
 };
 //# sourceMappingURL=templates.js.map

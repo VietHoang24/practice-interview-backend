@@ -22,7 +22,7 @@ let InterviewController = class InterviewController {
         this.interviewService = interviewService;
     }
     async startInterview(body) {
-        return this.interviewService.startInterview(body.role, body.level, body.userId, body.questionIds);
+        return this.interviewService.startInterview(body.role, body.level, body.userId, body.questionIds, body.language);
     }
     async getTemplates(role, level) {
         return this.interviewService.getTemplates(role, level);
@@ -40,14 +40,37 @@ let InterviewController = class InterviewController {
         return this.interviewService.deleteQuestion(id);
     }
     async submitAnswer(sessionId, body) {
+        console.log(`[Backend Controller] Received submitAnswer request for session ${sessionId}: "${body.answer}"`);
         return this.interviewService.processAnswer(sessionId, body.answer);
     }
     async transcribeAudio(sessionId, file) {
         if (!file) {
             throw new common_1.BadRequestException('No audio file uploaded');
         }
+        console.log(`[Backend Controller] Received audio file for transcription in session ${sessionId}: filename=${file.originalname || 'audio.webm'}, size=${file.size} bytes`);
         const text = await this.interviewService.transcribeAudio(file.buffer, file.originalname || 'audio.webm');
+        console.log(`[Backend Controller] Transcribed audio output text: "${text}"`);
         return { text };
+    }
+    async createRealtimeSession(sessionId, body) {
+        console.log(`[Backend Controller] Received request to generate WebRTC Realtime ephemeral token for session ${sessionId} (language: ${body?.language || 'vi-VN'})`);
+        const result = await this.interviewService.createRealtimeSessionToken(sessionId, body?.language);
+        console.log(`[Backend Controller] Ephemeral token generated successfully for session ${sessionId}`);
+        return result;
+    }
+    async evaluateTurn(sessionId, body) {
+        console.log(`[Backend Controller] Received evaluate-turn request for session ${sessionId}: "${body.userText}"`);
+        return this.interviewService.evaluateTurn(sessionId, body.questionText, body.userText, body.language);
+    }
+    async logMessage(sessionId, body) {
+        console.log(`[Backend Console Log] ${body.role.toUpperCase()}: "${body.content}" (Session: ${sessionId})`);
+        return { status: 'success' };
+    }
+    async skipIntro(sessionId, body) {
+        return this.interviewService.skipIntro(sessionId, body?.language);
+    }
+    async getInstructions(sessionId, body) {
+        return this.interviewService.getInstructions(sessionId, body.language);
     }
 };
 exports.InterviewController = InterviewController;
@@ -112,6 +135,46 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], InterviewController.prototype, "transcribeAudio", null);
+__decorate([
+    (0, common_1.Post)(':sessionId/realtime-session'),
+    __param(0, (0, common_1.Param)('sessionId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], InterviewController.prototype, "createRealtimeSession", null);
+__decorate([
+    (0, common_1.Post)(':sessionId/evaluate-turn'),
+    __param(0, (0, common_1.Param)('sessionId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], InterviewController.prototype, "evaluateTurn", null);
+__decorate([
+    (0, common_1.Post)(':sessionId/log-message'),
+    __param(0, (0, common_1.Param)('sessionId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], InterviewController.prototype, "logMessage", null);
+__decorate([
+    (0, common_1.Post)(':sessionId/skip-intro'),
+    __param(0, (0, common_1.Param)('sessionId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], InterviewController.prototype, "skipIntro", null);
+__decorate([
+    (0, common_1.Post)(':sessionId/instructions'),
+    __param(0, (0, common_1.Param)('sessionId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], InterviewController.prototype, "getInstructions", null);
 exports.InterviewController = InterviewController = __decorate([
     (0, common_1.Controller)('api/interviews'),
     __metadata("design:paramtypes", [interview_service_1.InterviewService])

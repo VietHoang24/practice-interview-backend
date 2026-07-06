@@ -8,9 +8,9 @@ export class InterviewController {
 
   @Post('start')
   async startInterview(
-    @Body() body: { role: string; level: string; userId?: string; questionIds?: string[] }
+    @Body() body: { role: string; level: string; userId?: string; questionIds?: string[]; language?: string }
   ) {
-    return this.interviewService.startInterview(body.role, body.level, body.userId, body.questionIds);
+    return this.interviewService.startInterview(body.role, body.level, body.userId, body.questionIds, body.language);
   }
 
   @Get('templates')
@@ -55,6 +55,7 @@ export class InterviewController {
     @Param('sessionId') sessionId: string,
     @Body() body: { answer: string }
   ) {
+    console.log(`[Backend Controller] Received submitAnswer request for session ${sessionId}: "${body.answer}"`);
     return this.interviewService.processAnswer(sessionId, body.answer);
   }
 
@@ -67,7 +68,54 @@ export class InterviewController {
     if (!file) {
       throw new BadRequestException('No audio file uploaded');
     }
+    console.log(`[Backend Controller] Received audio file for transcription in session ${sessionId}: filename=${file.originalname || 'audio.webm'}, size=${file.size} bytes`);
     const text = await this.interviewService.transcribeAudio(file.buffer, file.originalname || 'audio.webm');
+    console.log(`[Backend Controller] Transcribed audio output text: "${text}"`);
     return { text };
+  }
+
+  @Post(':sessionId/realtime-session')
+  async createRealtimeSession(
+    @Param('sessionId') sessionId: string,
+    @Body() body?: { language?: string }
+  ) {
+    console.log(`[Backend Controller] Received request to generate WebRTC Realtime ephemeral token for session ${sessionId} (language: ${body?.language || 'vi-VN'})`);
+    const result = await this.interviewService.createRealtimeSessionToken(sessionId, body?.language);
+    console.log(`[Backend Controller] Ephemeral token generated successfully for session ${sessionId}`);
+    return result;
+  }
+
+  @Post(':sessionId/evaluate-turn')
+  async evaluateTurn(
+    @Param('sessionId') sessionId: string,
+    @Body() body: { questionText: string; userText: string; language?: string }
+  ) {
+    console.log(`[Backend Controller] Received evaluate-turn request for session ${sessionId}: "${body.userText}"`);
+    return this.interviewService.evaluateTurn(sessionId, body.questionText, body.userText, body.language);
+  }
+
+  @Post(':sessionId/log-message')
+  async logMessage(
+    @Param('sessionId') sessionId: string,
+    @Body() body: { role: string; content: string }
+  ) {
+    console.log(`[Backend Console Log] ${body.role.toUpperCase()}: "${body.content}" (Session: ${sessionId})`);
+    return { status: 'success' };
+  }
+
+  @Post(':sessionId/skip-intro')
+  async skipIntro(
+    @Param('sessionId') sessionId: string,
+    @Body() body?: { language?: string }
+  ) {
+    return this.interviewService.skipIntro(sessionId, body?.language);
+  }
+
+  @Post(':sessionId/instructions')
+  async getInstructions(
+    @Param('sessionId') sessionId: string,
+    @Body() body: { language: string }
+  ) {
+    return this.interviewService.getInstructions(sessionId, body.language);
   }
 }

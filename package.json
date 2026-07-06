@@ -79,6 +79,9 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "moduleNameMapper": {
+      "^uuid$": "<rootDir>/../test/mock-uuid.js"
+    },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
